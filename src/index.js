@@ -1,21 +1,57 @@
 import './js/pixabay-api';
 import { PixabayServiceApi } from './js/pixabay-api';
-
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 import Notiflix from 'notiflix';
 
 const formEl = document.querySelector('.search-form');
 const galleryEl = document.querySelector('.gallery');
-const loadBtnEl = document.querySelector('.load-btn');
+const loadBtnEl = document.querySelector('#load-btn');
 
 formEl.addEventListener('submit', handlerFormSubmit);
 
 const pixabayServiceApi = new PixabayServiceApi();
 
-Notiflix.Notify.init({
-  position: 'center-center',
+let lightbox = new SimpleLightbox('.photo-card a', {
+  captionsData: 'alt',
+  captionDelay: 250,
 });
 
-export function createMarkup({ hits }) {
+Notiflix.Notify.init({
+  position: 'center-center',
+  timeout: 1500,
+});
+
+async function renderImages() {
+  try {
+    const images = await pixabayServiceApi.fetchImages();
+    await createMarkup(images);
+
+    pixabayServiceApi.incrementPage();
+  } catch (error) {
+    console.log(error);
+    Notiflix.Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+  }
+}
+
+async function handlerFormSubmit(evt) {
+  evt.preventDefault();
+  if (!evt.target.elements.searchQuery.value.trim()) {
+    Notiflix.Notify.info('Please, write something');
+    return;
+  }
+  Notiflix.Loading.standard('Loading data, please wait...');
+  galleryEl.innerHTML = '';
+  pixabayServiceApi.resetPage();
+  pixabayServiceApi.query = evt.target.elements.searchQuery.value;
+  renderImages();
+  loadBtnEl.classList.remove('is-hidden');
+  Notiflix.Loading.remove();
+}
+
+function createMarkup({ hits }) {
   const markupImgCard = hits
     .map(
       ({
@@ -33,16 +69,16 @@ export function createMarkup({ hits }) {
 </a>
   <div class="info">
     <p class="info-item">
-      <b>Likes</b>${likes}
+      <b>Likes</b> ${likes}
     </p>
     <p class="info-item">
-      <b>Views</b>${views}
+      <b>Views</b> ${views}
     </p>
     <p class="info-item">
-      <b>Comments</b>${comments}
+      <b>Comments</b> ${comments}
     </p>
     <p class="info-item">
-      <b>Downloads</b>${downloads}
+      <b>Downloads</b> ${downloads}
     </p>
   </div>
 </div>`;
@@ -50,5 +86,6 @@ export function createMarkup({ hits }) {
     )
     .join('');
 
-  galleryEl.insertAdjacentHTML('beforend', markupImgCard);
+  galleryEl.insertAdjacentHTML('beforeend', markupImgCard);
+  lightbox.refresh();
 }
