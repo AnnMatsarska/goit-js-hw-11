@@ -1,4 +1,3 @@
-import './js/pixabay-api';
 import { PixabayServiceApi } from './js/pixabay-api';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
@@ -19,8 +18,8 @@ let lightbox = new SimpleLightbox('.photo-card a', {
 });
 
 Notiflix.Notify.init({
-  position: 'center-center',
-  timeout: 1500,
+  position: 'right-top',
+  timeout: 3000,
 });
 
 async function renderImages() {
@@ -33,13 +32,18 @@ async function renderImages() {
       loadBtnEl.classList.add('is-hidden');
       return;
     }
+
+    await createMarkup(images);
+
     if (pixabayServiceApi.page === 1 && pixabayServiceApi.totalHits !== 0) {
-      Notiflix.Notify.success(
-        `Hooray! We found ${pixabayServiceApi.totalHits} images.`,
-        {
-          position: 'right-top',
-        }
-      );
+      let baseMassege = `Hooray! We found ${pixabayServiceApi.totalHits} images.`;
+      let currentGalleryLenghth = galleryEl.childNodes.length;
+
+      if (currentGalleryLenghth < 40) {
+        baseMassege +=
+          "We're sorry, but you've reached the end of search results.";
+      }
+      Notiflix.Notify.success(baseMassege);
 
       if (pixabayServiceApi.totalHits > pixabayServiceApi.per_page) {
         loadBtnEl.classList.remove('is-hidden');
@@ -47,7 +51,6 @@ async function renderImages() {
         loadBtnEl.classList.add('is-hidden');
       }
     }
-    await createMarkup(images);
   } catch (error) {
     Notiflix.Notify.failure('Something went wrong!');
   }
@@ -106,7 +109,19 @@ function createMarkup({ hits }) {
   lightbox.refresh();
 }
 
-function handlerLoadMoreBtn() {
+async function handlerLoadMoreBtn() {
   pixabayServiceApi.incrementPage();
-  renderImages();
+
+  await renderImages();
+  let currentGalleryLenghth = galleryEl.childNodes.length;
+
+  const isMaxValue = currentGalleryLenghth === pixabayServiceApi.totalHits;
+
+  if (isMaxValue) {
+    Notiflix.Notify.info(
+      "We're sorry, but you've reached the end of search results."
+    );
+    loadBtnEl.classList.add('is-hidden');
+    return;
+  }
 }

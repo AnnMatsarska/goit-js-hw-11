@@ -55,8 +55,7 @@ body {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.btn:hover,
-.btn:focus {
+.btn:hover {
   background-color: #062e70;
   color: white;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
