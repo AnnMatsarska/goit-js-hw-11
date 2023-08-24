@@ -33,17 +33,19 @@ async function renderImages() {
       return;
     }
 
-    await createMarkup(images);
+    createMarkup(images);
 
     if (pixabayServiceApi.page === 1 && pixabayServiceApi.totalHits !== 0) {
-      let baseMassege = `Hooray! We found ${pixabayServiceApi.totalHits} images.`;
-      let currentGalleryLenghth = galleryEl.childNodes.length;
+      // let baseMassege = `Hooray! We found ${pixabayServiceApi.totalHits} images.`;
+      // let currentGalleryLenghth = galleryEl.childNodes.length;
 
-      if (currentGalleryLenghth < 40) {
-        baseMassege +=
-          "We're sorry, but you've reached the end of search results.";
-      }
-      Notiflix.Notify.success(baseMassege);
+      // if (currentGalleryLenghth < 40) {
+      //   baseMassege +=
+      //     "We're sorry, but you've reached the end of search results.";
+      // }
+      Notiflix.Notify.success(
+        `Hooray! We found ${pixabayServiceApi.totalHits} images.`
+      );
 
       if (pixabayServiceApi.totalHits > pixabayServiceApi.per_page) {
         loadBtnEl.classList.remove('is-hidden');
@@ -56,7 +58,7 @@ async function renderImages() {
   }
 }
 
-async function handlerFormSubmit(evt) {
+function handlerFormSubmit(evt) {
   evt.preventDefault();
   if (!evt.target.elements.searchQuery.value.trim()) {
     Notiflix.Notify.info('Please, write something');
@@ -112,16 +114,18 @@ function createMarkup({ hits }) {
 async function handlerLoadMoreBtn() {
   pixabayServiceApi.incrementPage();
 
-  await renderImages();
-  let currentGalleryLenghth = galleryEl.childNodes.length;
+  const totalPerPage =
+    (pixabayServiceApi.page - 1) * pixabayServiceApi.per_page;
 
-  const isMaxValue = currentGalleryLenghth === pixabayServiceApi.totalHits;
-
-  if (isMaxValue) {
+  if (
+    totalPerPage > pixabayServiceApi.totalHits &&
+    pixabayServiceApi.page !== 1
+  ) {
     Notiflix.Notify.info(
       "We're sorry, but you've reached the end of search results."
     );
     loadBtnEl.classList.add('is-hidden');
     return;
   }
+  await renderImages();
 }
