@@ -36,13 +36,6 @@ async function renderImages() {
     createMarkup(images);
 
     if (pixabayServiceApi.page === 1 && pixabayServiceApi.totalHits !== 0) {
-      // let baseMassege = `Hooray! We found ${pixabayServiceApi.totalHits} images.`;
-      // let currentGalleryLenghth = galleryEl.childNodes.length;
-
-      // if (currentGalleryLenghth < 40) {
-      //   baseMassege +=
-      //     "We're sorry, but you've reached the end of search results.";
-      // }
       Notiflix.Notify.success(
         `Hooray! We found ${pixabayServiceApi.totalHits} images.`
       );
