@@ -107,18 +107,16 @@ function createMarkup({ hits }) {
 async function handlerLoadMoreBtn() {
   pixabayServiceApi.incrementPage();
 
-  const totalPerPage =
-    (pixabayServiceApi.page - 1) * pixabayServiceApi.per_page;
-
   if (
-    totalPerPage > pixabayServiceApi.totalHits &&
-    pixabayServiceApi.page !== 1
+    pixabayServiceApi.page <
+    Math.ceil(pixabayServiceApi.totalHits / pixabayServiceApi.per_page)
   ) {
+    loadBtnEl.classList.remove('is-hidden');
+  } else {
     Notiflix.Notify.info(
       "We're sorry, but you've reached the end of search results."
     );
     loadBtnEl.classList.add('is-hidden');
-    return;
   }
   await renderImages();
 }
