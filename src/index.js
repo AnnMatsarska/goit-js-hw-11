@@ -107,10 +107,14 @@ function createMarkup({ hits }) {
 async function handlerLoadMoreBtn() {
   pixabayServiceApi.incrementPage();
 
-  if (
-    pixabayServiceApi.page <
-    Math.ceil(pixabayServiceApi.totalHits / pixabayServiceApi.per_page)
-  ) {
+  let totalPerPage = Math.ceil(
+    pixabayServiceApi.totalHits / pixabayServiceApi.per_page
+  );
+
+  console.log('pixabayServiceApi.page: ', pixabayServiceApi.page);
+  console.log('totalPerPage: ', totalPerPage);
+
+  if (pixabayServiceApi.page < totalPerPage) {
     loadBtnEl.classList.remove('is-hidden');
   } else {
     Notiflix.Notify.info(
